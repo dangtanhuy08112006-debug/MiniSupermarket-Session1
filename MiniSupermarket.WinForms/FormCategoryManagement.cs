@@ -1,15 +1,14 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net.Http.Headers; // <-- Thêm thư viện này để dùng AuthenticationHeaderValue
+using System.Net.Http.Json;
 using System.Windows.Forms;
 
 namespace MiniSupermarket.WinForms
 {
     public partial class FormCategoryManagement : Form
     {
-
-        // Khởi tạo HttpClient tĩnh kết nối trực tiếp đến Web API (Đảm bảo số Port https://localhost:7123 khớp với API của bạn)
         private static readonly HttpClient _client = new HttpClient
         {
-            BaseAddress = new Uri("https://localhost:7044/api/")
+            BaseAddress = new Uri("http://localhost:7049/api/")
         };
 
         public FormCategoryManagement()
@@ -17,9 +16,15 @@ namespace MiniSupermarket.WinForms
             InitializeComponent();
         }
 
-        // Sự kiện Form vừa bật lên: Tự động tải dữ liệu từ API lên bảng
+        // Sự kiện Form vừa bật lên: Gắn Token và tải dữ liệu từ API lên bảng
         private async void FormCategoryManagement_Load(object sender, EventArgs e)
         {
+            // === QUAN TRỌNG: Gắn Token đã lưu từ bước đăng nhập vào Header ===
+            if (!string.IsNullOrEmpty(SessionManager.JwtToken))
+            {
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", SessionManager.JwtToken);
+            }
+
             await LoadDataAsync();
         }
 
@@ -28,7 +33,7 @@ namespace MiniSupermarket.WinForms
         {
             try
             {
-                // Gửi request GET tới endpoint "categories", tự động giải tuần tự hóa chuỗi JSON thành List<CategoryDto>
+                // Gửi request GET tới endpoint "categories" kèm theo Token trong Header
                 var categories = await _client.GetFromJsonAsync<List<CategoryDto>>("categories");
                 dgvCategories.DataSource = categories; // Gán nguồn dữ liệu cho bảng hiển thị
             }
@@ -65,13 +70,12 @@ namespace MiniSupermarket.WinForms
                 Description = txtDescription.Text
             };
 
-            // Gửi request POST kèm theo đối tượng dạng JSON
             var response = await _client.PostAsJsonAsync("categories", newCat);
             if (response.IsSuccessStatusCode)
             {
                 MessageBox.Show("Thêm mới thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                await LoadDataAsync(); // Tải lại danh sách mới
-                ClearInputs();         // Xóa sạch ô nhập
+                await LoadDataAsync();
+                ClearInputs();
             }
             else
             {
@@ -96,7 +100,6 @@ namespace MiniSupermarket.WinForms
                 Description = txtDescription.Text
             };
 
-            // Gửi request PUT kèm ID trên đường dẫn URI
             var response = await _client.PutAsJsonAsync($"categories/{id}", updateCat);
             if (response.IsSuccessStatusCode)
             {
@@ -143,13 +146,12 @@ namespace MiniSupermarket.WinForms
             string keyword = txtKeyword.Text.Trim();
             if (string.IsNullOrEmpty(keyword))
             {
-                await LoadDataAsync(); // Nếu ô tìm kiếm trống thì tải lại toàn bộ
+                await LoadDataAsync();
                 return;
             }
 
             try
             {
-                // Gọi API dạng: GET /api/categories/search?keyword=abc
                 var result = await _client.GetFromJsonAsync<List<CategoryDto>>($"categories/search?keyword={keyword}");
                 dgvCategories.DataSource = result;
             }
@@ -159,7 +161,6 @@ namespace MiniSupermarket.WinForms
             }
         }
 
-        // Hàm phụ trợ: Xóa trắng các ô nhập liệu sau khi thao tác xong
         private void ClearInputs()
         {
             txtId.Text = "";
@@ -168,7 +169,6 @@ namespace MiniSupermarket.WinForms
         }
     }
 
-    // Lớp DTO trung gian tại Client hứng dữ liệu JSON trả về từ Server
     public class CategoryDto
     {
         public int CategoryId { get; set; }

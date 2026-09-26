@@ -1,4 +1,4 @@
-﻿🛒 HỆ THỐNG QUẢN LÝ SIÊU THỊ MINI (MINISUPERMARKET SYSTEM)
+﻿# 🛒 HỆ THỐNG QUẢN LÝ SIÊU THỊ MINI (MINISUPERMARKET SYSTEM)
 > **Môn học:** Lập trình Ứng dụng .NET Core (Mã môn: 229162)  
 > **Buổi thực hành:** Buổi 1 - Xây dựng Web API quản lý danh mục và kết nối WinForms Client (CRUD)
 
@@ -51,10 +51,10 @@ Nhấp chuột phải vào project MiniSupermarket.WinForms chọn Debug -> Star
 Thử nghiệm các chức năng: Tải danh sách, Thêm mới, Sửa, Xóa và Tìm kiếm nhóm hàng.
 
 👨‍💻 5. Tác giả
-Họ tên sinh viên: Đặng Tấn Huy
+Họ tên sinh viên: Nguyễn Lê Chí Công
 
 
-Mã sinh viên: 2124110086
+Mã sinh viên: 2124110094
 
 
 Lớp học phần: CCQ2411C
